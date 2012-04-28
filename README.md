@@ -3,7 +3,7 @@ age-of-python:develop
 
 This is the develop branch.
 
-If you want to work on a new feature, create a new branch for it with for example: `git checkout -b trigger-conditions`
+If you want to work on a new feature, create a new branch for it with for example: `git checkout -b my-new-feature`
 
 Or if a branch for something exists and you want to switch to it `git checkout existing-branch`
 
