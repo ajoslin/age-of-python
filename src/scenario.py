@@ -3,7 +3,8 @@ import struct
 import aoplogger
 import zlib
 
-# Temporary logging for now
+# Instantiate logger object, and let it know it'll
+# be scenario module creating the log entries
 logger = aoplogger.logger('scenario')
 
 class Scenario(object):
