@@ -4,10 +4,9 @@ import os
 
 num_logs = 5
 logs_dir = '../logs/'
-log_path = logs_dir+'log%d_%s.json' % (0, datetime.today().strftime("%b%d@%H:%M"))
 
-# Write all the old logs to new files.
-# eg log0 -> log1, log8 -> log9, up to log9.
+# Backup all previous log files, up to num_logs
+# eg log0 -> log1, log2 -> log3
 logs = os.listdir(logs_dir)
 for i in range(num_logs):
 	if i<len(logs):
@@ -20,12 +19,12 @@ for i in range(num_logs):
 		new_log.write(old_log.read())
 		new_log.close()
 		old_log.close()
+		# remove the log we just backed up
 		os.remove(logs_dir+logs[i])
-	else:
-		print "not doing %d" % i
 
-
-# create empty file
+# set the path for the current log
+log_path = logs_dir+'log%d_%s.json' % (0, datetime.today().strftime("%b%d-%H.%M"))
+# create empty file for it
 open(log_path,'w').close()
 
 
