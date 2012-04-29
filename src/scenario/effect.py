@@ -3,7 +3,7 @@ from ..util import logger
 
 logger = logger.Logger('effect')
 
-class effect(object):
+class Effect(object):
 	def __init__(self):
 		logger.log("creating new effect")
 
