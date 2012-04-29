@@ -1,8 +1,9 @@
-import aoplogger
+from ..util import helpers 
+from ..util import logger
 
-logger = aoplogger.logger('effect')
+logger = logger.Logger('effect')
 
-class Effect(object):
+class effect(object):
 	def __init__(self):
 		logger.log("creating new effect")
 

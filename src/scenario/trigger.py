@@ -1,11 +1,11 @@
-import helpers
-import aoplogger
+from ..util import helpers 
+from ..util import logger
 import effect
 import condition
 
-logger = aoplogger.logger('trigger')
+logger = logger.Logger('trigger')
 
-class Trigger(object):
+class trigger(object):
 	conditions = []
 	effects = []
 	name = ''
@@ -18,7 +18,7 @@ class Trigger(object):
 	def __init__(self):
 		logger.log('creating new trigger')
 
-	def read(scn_file):
+	def read(self, scn_file):
 		"""Reads trigger-data from given scn_file"""
 		f = scn_file #shorter for ease of use
 		self.on = helpers.read_long(f) == 1 # ==1: convert 0/1 to bool
@@ -39,10 +39,10 @@ class Trigger(object):
 		#  after the actual effects for some reason)
 		self.effects = [None] * neffects #initialize list with neffects items
 		for i in range(neffects):
-			e = effect.Effect().read(f)
+			e = effect.effect().read(f)
 			effects.append(e)
 
-		# Effect display order
+		# effect display order
 		for i in range(neffects):
 			self.effects[i].display_order = helpers.read_long(f)
 
@@ -50,9 +50,9 @@ class Trigger(object):
 		nconds = helpers.read_long(f)
 		self.conditions = [None] * nconds
 		for i in range(nconds):
-			c = condition.Condition().read(f)
+			c = condition.condition().read(f)
 			conditions.append(c)
 
-		# Condition display order
+		# condition display order
 		for i in range(nconds):
 			conditions[i].display_order = helpers.read_long(f)

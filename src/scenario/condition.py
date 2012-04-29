@@ -1,8 +1,9 @@
-import aoplogger
+from ..util import helpers 
+from ..util import logger
 
-logger = aoplogger.logger('condition')
+logger = logger.Logger('condition')
 
-class Condition(object):
+class condition(object):
 	def __init__(self):
 		logger.log("creating new condition")
 
