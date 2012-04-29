@@ -8,17 +8,14 @@ logs_dir = os.getcwd()+'/../logs/'
 
 def log_file(n): return logs_dir+("log%d.json" % n)
 
+#Backs up a log file, eg log0.json gets copied to log1.json
 def backup_log_file(n):
 	try:
 		shutil.copyfile(log_file(n), log_file(n+1))
 	except IOError:
 		do_something_so_python_doesnt_error = True
 
-for i in range(num_logs):
-	backup_log_file(i)
-
 # Backup all previous log files, up to num_logs
-# eg log0 turns into log1
 for i in range(num_logs):
 	backup_log_file(i)
 
@@ -31,8 +28,7 @@ class Logger(object):
 
 	def log(self, msg, *args):
 		f = open(log_file(0), 'a')
-		if len(args)>0:
-			msg = msg % args
+		if len(args)>0: msg = msg % args
 		f.write(json.dumps({
 			'time': datetime.now().strftime("%H:%M:%S"),
 			'text': msg,

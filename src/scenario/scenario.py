@@ -63,7 +63,7 @@ class Scenario(object):
 		logger.log('numtriggers=%d', ntriggers)
 
 		for i in range(ntriggers):
-			t = trigger.trigger().read(decompr_file)
+			t = trigger.Trigger().read(decompr_file)
 			self.triggers.append(t)
 
 

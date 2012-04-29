@@ -5,7 +5,7 @@ import condition
 
 logger = logger.Logger('trigger')
 
-class trigger(object):
+class Trigger(object):
 	conditions = []
 	effects = []
 	name = ''
@@ -39,7 +39,7 @@ class trigger(object):
 		#  after the actual effects for some reason)
 		self.effects = [None] * neffects #initialize list with neffects items
 		for i in range(neffects):
-			e = effect.effect().read(f)
+			e = effect.Effect().read(f)
 			effects.append(e)
 
 		# effect display order
@@ -50,7 +50,7 @@ class trigger(object):
 		nconds = helpers.read_long(f)
 		self.conditions = [None] * nconds
 		for i in range(nconds):
-			c = condition.condition().read(f)
+			c = condition.Condition().read(f)
 			conditions.append(c)
 
 		# condition display order

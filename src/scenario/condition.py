@@ -3,7 +3,7 @@ from ..util import logger
 
 logger = logger.Logger('condition')
 
-class condition(object):
+class Condition(object):
 	def __init__(self):
 		logger.log("creating new condition")
 
