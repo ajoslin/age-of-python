@@ -1,6 +1,9 @@
 import struct
 import base64
 import zlib
+import logger
+
+logger = logger.Logger('helpers')
 
 ### Helper functions for reading from binary
 def read_int(f):
@@ -17,7 +20,13 @@ def read_float(f):
 
 def read_str(f):
 	length = read_long(f)
-	return struct.unpack('<s', f.read(length))[0]
+	s = ''
+	for i in range(length):
+		s += struct.unpack('<c', f.read(1))[0]
+	return s
+
+def read_char(f):
+	return struct.unpack('<c', f.read(1))[0]
 
 # Helper functions for deflate(decompress) and inflate(compress) of a given string
 def inflate( b64string ):
