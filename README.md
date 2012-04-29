@@ -1,13 +1,13 @@
 age-of-python:develop
 =====================
 
-** Dependences **
+### Running current version, and testing 
 
 * Right now, there is no main file, only test cases.
 * To test, download py.test with `pip install pytest` and run `py.test` in the `src` directory.  Add your own test cases for your own functionality.
 * View logs for your tests in the `logs` folder.
 
-** Development Instructions **
+### Development Instructions 
 
 This is the develop branch.
 
