@@ -18,12 +18,32 @@ def read_long(f):
 def read_float(f):
 	return struct.unpack('<f', f.read(4))[0]
 
+# When reading a genie str, there is a null char at the end
+# Python doesn't use null-terminated strings, ignore null chars
 def read_str(f):
 	length = read_long(f)
 	s = ''
 	for i in range(length):
-		s += struct.unpack('<c', f.read(1))[0]
+		c = struct.unpack('<c', f.read(1))[0]
+		if c != '\x00': s += c
 	return s
+
+### Helper functions for writing to binary
+def write_int(f, val):
+
+def write_short(f, val):
+
+def write_long(f, val):
+
+def write_float(f, val):
+
+def write_str(f, val):
+	# add a null char at the end
+	val += '\x00'
+	length = len(val)
+	f.write( struct.pack('<l', length) )
+	for i in range(length):
+		f.write( struct.pack('<c', val[i]) )
 
 def read_char(f):
 	return struct.unpack('<c', f.read(1))[0]

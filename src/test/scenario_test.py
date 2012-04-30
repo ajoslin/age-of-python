@@ -16,16 +16,15 @@ class TestScenarioSimple(object):
 		self.scenario.read(scen_dir+'1trigger.scx')
 
 	def test_triggers_len(self):
-		assert len(self.scenario.triggers) == 1, 'Incorrect triggers count'
+		assert len(self.scenario.triggers) == 1
 
 	def test_trigger_attr_loop(self):
-		assert self.scenario.triggers[0].loop == False, 'Loop was read wrong'
+		assert self.scenario.triggers[0].loop == False
 
-	def test_trigger_effect_attr_type(self):
-		assert self.scenario.triggers[0].effects[0].eff_type == effect.Type.Blank, 'Effect type was read wrong'
-
-	def test_trigger_conds_len(self):
-		assert self.scenario.triggers[0].conditions[0].cond_type == condition.Type.Blank, 'Condition type was read wrong'
+	def test_trigger_cond_effect_type(self):
+		triggers = self.scenario.triggers
+		assert triggers[0].effects[0].eff_type == effect.Type.Blank
+		assert triggers[0].conditions[0].cond_type == condition.Type.Blank
 
 # Test of loading eternal blood scenario
 class TestScenarioEternalBlood(object):
@@ -35,22 +34,24 @@ class TestScenarioEternalBlood(object):
 		self.scenario.read(scen_dir+'eternal_blood.scx')
 
 	def test_triggers_len(self):
-		assert len(self.scenario.triggers) == 2017, 'Trigger count is not 2017'
+		assert len(self.scenario.triggers) == 2017
 
 	def test_trigger_1(self):
 		"""Test the second trigger in eternal blood"""
 		trigger = self.scenario.triggers[1]
-		assert trigger.name == 'PL1 KFC-', 'Name is wrong'
+		# have to add nullchar when testing string equality because
+		# genie reads in a null char for all strings
+		assert trigger.name == 'PL1 KFC-'
 
-		assert len(trigger.conditions) == 1, 'Conditions len is wrong'
-		assert trigger.conditions[0].cond_type == condition.Type.AccumulateAttribute, 'Cond0 type is not AccumulateAttribute'
-		assert trigger.conditions[0].amount == 5, 'Cond0 Amount is not 5'
-		assert trigger.conditions[0].player == 1, 'Cond0 player is not 1'
+		assert len(trigger.conditions) == 1
+		assert trigger.conditions[0].cond_type == condition.Type.AccumulateAttribute
+		assert trigger.conditions[0].amount == 5
+		assert trigger.conditions[0].player == 1
 
-		assert len(trigger.effects) == 3, 'Effects len is wrong'
-		assert triggers.effects[2].eff_type == effect.Type.CreateObject, 'Effect0 type is not CreateObject'
-		assert triggers.effects[2].unit_constant == 601, 'Effect0 unit constant is not flag B'
-		assert triggers.effects[2].player == 1, 'Effect0 player is wrong'
+		assert len(trigger.effects) == 3
+		assert trigger.effects[2].eff_type == effect.Type.CreateObject
+		assert trigger.effects[2].unit_constant == 601
+		assert trigger.effects[2].player_source == 1
 
 
 if __name__ == '__main__':

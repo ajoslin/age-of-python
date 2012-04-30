@@ -76,6 +76,10 @@ class Scenario(object):
 			order = helpers.read_long(decompr_file)
 			self.triggers.append(triggers_tmp[i])
 
+		# Close our decompressed data file and remove it
+		decompr_file.close()
+		os.remove(decompr_path)
+
 
 # Skips the header 
 def skip_header(f):
@@ -141,12 +145,25 @@ def skip_misc_data(f):
 
 	f.read(4) #numplayers
 	f.read(8*28) #playerdata part 4
-	for i in range(8): #players 0-8
+	logger.log('after playerdata part4=%d', f.tell())
+	###
+	# TODO?: Consider reading these units in and saving them to scenario,
+	# then restrict what units user can pick based on it
+	###
+	for i in range(9): #players 0-8
 		count = helpers.read_long(f) #unitcount
+		logger.log('count for player %d = %d', 1+i, count)
 		for j in range(count):
-			f.read(4+4+4+4+2+1+4+2+4) # unit info
+			f.read(4+4) #xpos, ypos float
+			f.read(4) # unknown long
+			f.read(4) #uid long
+			f.read(2 + 1) #unknown short + byte
+			f.read(4) #rotation float
+			f.read(2) #frame short
+			f.read(4) #garrison long
+			
 	logger.log('after unit data=%d', f.tell())
-	f.read(8) #seperator
+	f.read(4) #seperator
 	for i in range(8): #player data 3
 		f.read( helpers.read_short(f) ) #playername
 		f.read(8+4+1) #cameras/unk/alliedvictory
