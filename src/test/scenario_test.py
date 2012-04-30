@@ -53,6 +53,26 @@ class TestScenarioEternalBlood(object):
 		assert trigger.effects[2].unit_constant == 601
 		assert trigger.effects[2].player_source == 1
 
+# Test loading of star td scenario
+class TestScenarioStarTowerDefense(object):
+	def setup_class(self):
+		logger.log('Beginning test: TestScenarioStarTowerDefense')
+		self.scenario = scenario.Scenario()
+		self.scenario.read(scen_dir+'star_td.scx')
+
+	def test_triggers_len(self):
+		assert len(self.scenario.triggers) == 469
+
+	def test_trigger_last_attrs(self):
+		trigger = self.scenario.triggers[468]
+
+		assert trigger.name == 'Stop towers on resource isles'
+		assert trigger.loop == True
+		assert trigger.on == True
+		assert len(trigger.conditions) == 0
+		assert len(trigger.effects) == 8
+		assert trigger.effects[2].eff_type == effect.Type.KillObject
+		assert trigger.effects[2].player_source == 3
 
 if __name__ == '__main__':
 	unittest.main()

@@ -30,12 +30,16 @@ def read_str(f):
 
 ### Helper functions for writing to binary
 def write_int(f, val):
+	f.write( struct.pack('<f', val) )
 
 def write_short(f, val):
+	f.write( struct.pack('<h', val) )
 
 def write_long(f, val):
+	f.write( struct.pack('<l', val) )
 
 def write_float(f, val):
+	f.write( struct.pack('<f', val) )
 
 def write_str(f, val):
 	# add a null char at the end
