@@ -1,10 +1,11 @@
 age-of-python:develop
 =====================
 
-### Running current version, and testing 
+### How to run the current version
 
-* Right now, there is no main file, only test cases.
-* To test, download py.test with `pip install pytest` and run `py.test` in the `src` directory.  Add your own test cases for your own functionality.
+* Right now, there is no main file. There are only test cases.
+* To test, you'll need to download py.test with `pip install pytest` 
+* Then run `py.test -v` in the `src` directory.  Add lots of your own test cases for your own functionality and make sure the tests work!
 * View logs for your tests in the `logs` folder.
 
 ### Development Instructions 
