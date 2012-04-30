@@ -20,4 +20,6 @@ To push a branch you're on, do: `git push origin my-branch`
 
 To pull changes from a branch, do: `git fetch origin the-branch-name`, then `git merge origin/the-branch-name`.
 
+If you finish a feature, to delete the feature branch do: `git push origin :my-branch-to-delete`
+
 Send me a pull request if you have cool changes you pushed.
