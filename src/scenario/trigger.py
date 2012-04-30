@@ -2,6 +2,7 @@ from ..util import helpers
 from ..util import logger
 import effect
 import condition
+import struct
 
 logger = logger.Logger('trigger')
 
@@ -21,10 +22,14 @@ class Trigger(object):
 	def read(self, scn_file):
 		"""Reads trigger-data from given scn_file"""
 		f = scn_file #shorter for ease of use
-		self.on = helpers.read_long(f) == 1 # ==1: convert 0/1 to bool
+		self.on = helpers.read_long(f) == 1 # ==1: convert 0 or 1 to bool
 		self.loop = helpers.read_long(f) == 1
-		helpers.read_long(f) #unknown
-		self.objective = helpers.read_long(f) == 1
+
+		f.read(1) #1-char unknown
+
+		# Objective is stored as a 1-byte char.
+		# so read it in as an int, just mul it by 4
+		self.objective = struct.unpack('<i', f.read(1)*4) == 1
 		self.obj_order = helpers.read_long(f)
 
 		f.read(4) # skip zeroes data
@@ -34,25 +39,33 @@ class Trigger(object):
 
 		# Effects
 		neffects = helpers.read_long(f)
-		# We have to createa  temporary effects array
-		# (this is because effect order is in the scn file
-		#  after the actual effects for some reason)
-		self.effects = [None] * neffects #initialize list with neffects items
+		# We have to create a temporary effects array
+		# (because effect order is in the scn file after the actual effects)
+		effects_tmp = []
 		for i in range(neffects):
-			e = effect.Effect().read(f)
-			effects.append(e)
+			e = effect.Effect()
+			e.read(f)
+			effects_tmp.append(e)
 
-		# effect display order
+		# effect order. we'll put things in actual self.effects in order
+		self.effects = []
 		for i in range(neffects):
-			self.effects[i].display_order = helpers.read_long(f)
+			order = helpers.read_long(f)
+			self.effects.append(effects_tmp[order])
 
 		#Conditions 
 		nconds = helpers.read_long(f)
-		self.conditions = [None] * nconds
+		# Temporary conditions array
+		conditions_tmp = []
 		for i in range(nconds):
-			c = condition.Condition().read(f)
-			conditions.append(c)
+			c = condition.Condition()
+			c.read(f)
+			conditions_tmp.append(c)
 
-		# condition display order
+		# condition display order, uses actual self.conditions
+		self.conditions = []
 		for i in range(nconds):
-			conditions[i].display_order = helpers.read_long(f)
+			order = helpers.read_long(f)
+			self.conditions.append(conditions_tmp[order])
+
+	

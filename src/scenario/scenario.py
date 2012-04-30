@@ -62,10 +62,23 @@ class Scenario(object):
 		ntriggers = helpers.read_long(decompr_file)
 		logger.log('numtriggers=%d', ntriggers)
 
+		# create temporary array for triggers, will fill in self.triggers later
+		# with actual trigger order
+		triggers_tmp = []
 		for i in range(ntriggers):
-			t = trigger.Trigger().read(decompr_file)
-			self.triggers.append(t)
+			t = trigger.Trigger()
+			t.read(decompr_file)
+			triggers_tmp.append(t)
 
+		# now fill in trigger order
+		self.triggers = []
+		for i in range(ntriggers):
+			order = helpers.read_long(decompr_file)
+			self.triggers.append(triggers_tmp[i])
+
+		# Close our decompressed data file and remove it
+		decompr_file.close()
+		os.remove(decompr_path)
 
 
 # Skips the header 
@@ -95,11 +108,18 @@ def skip_misc_data(f):
 	hasbmp = helpers.read_long(f) # bool stored as long, hasbmp?
 	f.read(4+4+2) #sizex of bmp + sizey of bmp + unknown
 	if hasbmp!=0:
-		f.read(20) # misc
-		f.read( 16+1024+helpers.read_long(f) ) #skip bmp
+		f.read(4+4+2+2+4) # misc
+		bmp_size = helpers.read_long(f)
+		f.read(16)
+		f.read(bmp_size+1024)
+	logger.log('after bmp=%d', f.tell())
 	for i in range(32): f.read( helpers.read_short(f) ) # 32 unknowns
 	for i in range(16): f.read( helpers.read_short(f) ) # 16 ai names
-	for i in range(16): f.read( 8+helpers.read_long(f) ) # 16 ai files
+	logger.log('after 16 ai names=%d', f.tell())
+	for i in range(16):
+		f.read(8)
+		ai_len = helpers.read_long(f)
+		f.read(ai_len)
 	f.read(16) # 16 ai types
 	f.read(4) # random seperator
 	# resources for each player: long gold/wood/food/stone/porex/unknown
@@ -125,11 +145,25 @@ def skip_misc_data(f):
 
 	f.read(4) #numplayers
 	f.read(8*28) #playerdata part 4
-	for i in range(8): #players 0-8
+	logger.log('after playerdata part4=%d', f.tell())
+	###
+	# TODO?: Consider reading these units in and saving them to scenario,
+	# then restrict what units user can pick based on it
+	###
+	for i in range(9): #players 0-8
 		count = helpers.read_long(f) #unitcount
+		logger.log('count for player %d = %d', 1+i, count)
 		for j in range(count):
-			f.read(4+4+4+4+2+1+4+2+4) # unit info
-	f.read(8) #seperator
+			f.read(4+4) #xpos, ypos float
+			f.read(4) # unknown long
+			f.read(4) #uid long
+			f.read(2 + 1) #unknown short + byte
+			f.read(4) #rotation float
+			f.read(2) #frame short
+			f.read(4) #garrison long
+			
+	logger.log('after unit data=%d', f.tell())
+	f.read(4) #seperator
 	for i in range(8): #player data 3
 		f.read( helpers.read_short(f) ) #playername
 		f.read(8+4+1) #cameras/unk/alliedvictory
