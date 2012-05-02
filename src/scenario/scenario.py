@@ -16,22 +16,21 @@ class Scenario(object):
 		logger.log('Creating new scenario')
 
 	def read(self, path):
-		"""Reads from given path"""
-		"""Steps:"""
-		"""1. Open scenario, skip the header (header is uncompressed)"""
-		"""2. Decompress everything after the header (rest of scn data)"""
-		"""3. Skip all the data through to triggers"""
 		logger.log('Reading scenario. path='+path)
 
 		# open the file
 		scn_file = open(path, 'rb')
-		scn_len = os.stat(path).st_size
-		logger.log('Opened scenario. length=%d', scn_len)
+		logger.log('Opened scenario. length=%d', os.stat(path).st_size)
 
-		# skip uncompressed header string
-		logger.log('skipping header...')
-		header_len = skip_header(scn_file)
-		logger.log('header skipped. header_len=%d', header_len)
+		# Skip the header
+		logger.log('reading header...')
+		header_len = skip_header(scn_file);
+		# now we have to save the header data for writing later
+		f = open(path, 'rb')
+		self.header_data = f.read(header_len)
+		f.close()
+
+		logger.log('header read. header_len=%d', header_len+4)
 
 		# decompress everything after header
 		logger.log('decompressing data...')
@@ -42,7 +41,7 @@ class Scenario(object):
 
 		# write decompressed data to a new file, close the old one
 		scn_file.close()
-		decompr_path = path+'.decompr.hex'
+		decompr_path = path+'.hex'
 		logger.log('writing decompressed data to %s', decompr_path)
 		decompr_file = open(decompr_path, 'wb')
 		decompr_file.write(decompressed_data)
@@ -57,10 +56,17 @@ class Scenario(object):
 		misc_data_len = skip_misc_data(decompr_file)
 		logger.log('misc data skipped. misc_data_len=%d', misc_data_len)
 
+		# Now we are going to save the before triggers data
+		# re-open the decompressed file from start to do this
+		# We'll need this data when we write
+		f = open(decompr_path, 'rb')
+		self.before_triggers_data = f.read(misc_data_len)
+		f.close()
+
 		# Now read the triggers
 		logger.log('reading triggers...')
 		ntriggers = helpers.read_long(decompr_file)
-		logger.log('numtriggers=%d', ntriggers)
+		logger.log('ntriggers=%d', ntriggers)
 
 		# create temporary array for triggers, will fill in self.triggers later
 		# with actual trigger order
@@ -76,17 +82,64 @@ class Scenario(object):
 			order = helpers.read_long(decompr_file)
 			self.triggers.append(triggers_tmp[i])
 
+		logger.log('trigger reading done.')
+		logger.log('trigger end = %d', decompr_file.tell())
+
+		# Save everything else after triggers to memory
+		# For writing
+		self.after_triggers_data = decompr_file.read()
+
 		# Close our decompressed data file and remove it
 		decompr_file.close()
 		os.remove(decompr_path)
 
+	def write(self, path):
+		logger.log("Writing scenario to %s", path)
+		# write needs the scenario to have been read before
+		if self.header_data == None or self.before_triggers_data == None or self.after_triggers_data == None:
+			raise Exception("Error in write! Scenario must be read before writing")
 
-# Skips the header 
+		# We have to write all the decompressed data to a file then compress it
+		# First write all the data
+		decompr_path = path+'.hex'
+		decompr_file = open(decompr_path, 'wb')
+		decompr_file.write(self.before_triggers_data)
+
+		# Write trigger count
+		helpers.write_long(decompr_file, len(self.triggers))
+		# Write triggers
+		for i in range( len(self.triggers) ):
+			self.triggers[i].write(decompr_file)
+		# Write trigger order
+		for i in range( len(self.triggers) ):
+			helpers.write_long(decompr_file, i)
+
+		# Write everything after triggers and close
+		decompr_file.write(self.after_triggers_data)
+		decompr_file.close()
+
+		# Now read all the data to a string then compress that string
+		decompr_file = open(decompr_path, 'rb')
+		compressed_data = helpers.deflate( decompr_file.read() )
+		# Close and remove .hex, we're done with decompressed data
+		decompr_file.close()
+		os.remove(decompr_path)
+
+		# Now we just have to write header and compressed data to given path
+		scn_file = open(path, 'wb')
+		scn_file.write(self.header_data)
+		scn_file.write(compressed_data)
+		scn_file.close()
+
+
+
+
+# Skips the uncompressed header and returns length of it
 def skip_header(f):
-	f.read(4) # skip header version str
-	header_len = helpers.read_long(f)
-	header = f.read(header_len)
-	return 8+header_len
+	f.read(4) # skip 4-char version header
+	header_len = helpers.read_long(f) # length of header
+	f.read(header_len)
+	return header_len + 8
 
 # Skips all the data before triggers
 # Note: if you want in-depth info about scenario structure, check out 
@@ -112,10 +165,10 @@ def skip_misc_data(f):
 		bmp_size = helpers.read_long(f)
 		f.read(16)
 		f.read(bmp_size+1024)
-	logger.log('after bmp=%d', f.tell())
+	# logger.log('after bmp=%d', f.tell())
 	for i in range(32): f.read( helpers.read_short(f) ) # 32 unknowns
 	for i in range(16): f.read( helpers.read_short(f) ) # 16 ai names
-	logger.log('after 16 ai names=%d', f.tell())
+	# logger.log('after 16 ai names=%d', f.tell())
 	for i in range(16):
 		f.read(8)
 		ai_len = helpers.read_long(f)
@@ -140,19 +193,19 @@ def skip_misc_data(f):
 	f.read(4*4) # unkn, camerax, cameray, aitype
 	mapx = helpers.read_long(f)
 	mapy = helpers.read_long(f)
-	logger.log('mapx,mapy = %d,%d', mapx, mapy)
+	# logger.log('mapx,mapy = %d,%d', mapx, mapy)
 	f.read( mapx * mapy * 3 ) #mapx*mapy*(id,elv,null)
 
 	f.read(4) #numplayers
 	f.read(8*28) #playerdata part 4
-	logger.log('after playerdata part4=%d', f.tell())
+	# logger.log('after playerdata part4=%d', f.tell())
 	###
 	# TODO?: Consider reading these units in and saving them to scenario,
 	# then restrict what units user can pick based on it
 	###
 	for i in range(9): #players 0-8
 		count = helpers.read_long(f) #unitcount
-		logger.log('count for player %d = %d', 1+i, count)
+		# logger.log('count for player %d = %d', 1+i, count)
 		for j in range(count):
 			f.read(4+4) #xpos, ypos float
 			f.read(4) # unknown long
@@ -162,7 +215,7 @@ def skip_misc_data(f):
 			f.read(2) #frame short
 			f.read(4) #garrison long
 			
-	logger.log('after unit data=%d', f.tell())
+	# logger.log('after unit data=%d', f.tell())
 	f.read(4) #seperator
 	for i in range(8): #player data 3
 		f.read( helpers.read_short(f) ) #playername
@@ -175,3 +228,4 @@ def skip_misc_data(f):
 	f.read(8) #constant
 	f.read(1) # skip first byte of trigger-data
 	return f.tell() #return how many bytes we skipped
+	

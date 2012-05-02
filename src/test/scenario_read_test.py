@@ -5,13 +5,13 @@ import unittest
 import os
 from ..util import logger
 
-logger = logger.Logger('scenario_test')
+logger = logger.Logger('scenario_read_test')
 scen_dir = os.getcwd()+'/../scens/'
 
 # Test of a simple scenario with 1 trigger and 1 effect and 1 condition
-class TestScenarioSimple(object):
+class TestScenarioReadSimple(object):
 	def setup_class(self):
-		logger.log('Beginning test: TestScenarioSimple')
+		logger.log('Beginning test: TestScenarioReadSimple')
 		self.scenario = scenario.Scenario()
 		self.scenario.read(scen_dir+'1trigger.scx')
 
@@ -27,9 +27,9 @@ class TestScenarioSimple(object):
 		assert triggers[0].conditions[0].cond_type == condition.Type.Blank
 
 # Test of loading eternal blood scenario
-class TestScenarioEternalBlood(object):
+class TestScenarioReadEternalBlood(object):
 	def setup_class(self):
-		logger.log('Beginning test: TestScenarioEternalBlood')
+		logger.log('Beginning test: TestScenarioReadEternalBlood')
 		self.scenario = scenario.Scenario()
 		self.scenario.read(scen_dir+'eternal_blood.scx')
 
@@ -54,9 +54,9 @@ class TestScenarioEternalBlood(object):
 		assert trigger.effects[2].player_source == 1
 
 # Test loading of star td scenario
-class TestScenarioStarTowerDefense(object):
+class TestScenarioReadStarTD(object):
 	def setup_class(self):
-		logger.log('Beginning test: TestScenarioStarTowerDefense')
+		logger.log('Beginning test: TestScenarioReadStarTD')
 		self.scenario = scenario.Scenario()
 		self.scenario.read(scen_dir+'star_td.scx')
 

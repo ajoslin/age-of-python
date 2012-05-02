@@ -3,6 +3,7 @@ from ..util import logger
 import effect
 import condition
 import struct
+import os
 
 logger = logger.Logger('trigger')
 
@@ -14,10 +15,39 @@ class Trigger(object):
 	on = False
 	loop = False
 	objective = False
-	obj_order = 0
+	obj_order = -1
 
-	def __init__(self):
-		logger.log('creating new trigger')
+	def write(self, scn_file):
+		f = scn_file #short for ease of use
+		init = f.tell()
+		helpers.write_long(f, self.on)
+		helpers.write_long(f, self.loop)
+		f.write( struct.pack('<c', '0') ) # write unknown
+		f.write( struct.pack('<?', self.objective) ) #objective is bool
+		helpers.write_long(f, self.obj_order)
+
+		# write 4 bytes of zeroes
+		for i in range(4): f.write( struct.pack('<c', '0') ) 
+
+		helpers.write_str(f, self.description)
+		helpers.write_str(f, self.name)
+
+		# Write effects
+		helpers.write_long(f, len(self.effects))
+		for e in self.effects:
+			e.write(f)
+		# Write effect order
+		for i in range( len(self.effects) ):
+			helpers.write_long(f, i)
+
+		# Write conds
+		helpers.write_long(f, len(self.conditions))
+		for c in self.conditions:
+			c.write(f)
+		# Write condition order
+		for i in range( len(self.conditions) ):
+			helpers.write_long(f, i)
+
 
 	def read(self, scn_file):
 		"""Reads trigger-data from given scn_file"""
@@ -67,5 +97,6 @@ class Trigger(object):
 		for i in range(nconds):
 			order = helpers.read_long(f)
 			self.conditions.append(conditions_tmp[order])
+
 
 	

@@ -46,9 +46,26 @@ class Condition(object):
 	unit_type = -1
 	ai_signal = -1
 
-	def __init__(self):
-		logger.log("creating new condition")
-
+	def write(self, scn_file):
+		f = scn_file
+		helpers.write_long(f, self.cond_type)
+		helpers.write_long(f, self.check)
+		helpers.write_long(f, self.amount)
+		helpers.write_long(f, self.resources)
+		helpers.write_long(f, self.uid_object)
+		helpers.write_long(f, self.uid_location)
+		helpers.write_long(f, self.unit_const)
+		helpers.write_long(f, self.player)
+		helpers.write_long(f, self.technology)
+		helpers.write_long(f, self.timer)
+		helpers.write_long(f, self.unknown)
+		helpers.write_long(f, self.area_ur_y)
+		helpers.write_long(f, self.area_ur_x)
+		helpers.write_long(f, self.area_ll_y)
+		helpers.write_long(f, self.area_ll_x)
+		helpers.write_long(f, self.unit_group)
+		helpers.write_long(f, self.unit_type)
+		helpers.write_long(f, self.ai_signal)
 
 	def read(self, scn_file):
 		""" Read condition from scenario file """

@@ -2,6 +2,7 @@ import struct
 import base64
 import zlib
 import logger
+import os
 
 logger = logger.Logger('helpers')
 
@@ -22,11 +23,8 @@ def read_float(f):
 # Python doesn't use null-terminated strings, ignore null chars
 def read_str(f):
 	length = read_long(f)
-	s = ''
-	for i in range(length):
-		c = struct.unpack('<c', f.read(1))[0]
-		if c != '\x00': s += c
-	return s
+	#read the full length, then take out the nullchar at the end
+	return f.read(length)[:length-1] 
 
 ### Helper functions for writing to binary
 def write_int(f, val):
@@ -42,22 +40,17 @@ def write_float(f, val):
 	f.write( struct.pack('<f', val) )
 
 def write_str(f, val):
-	# add a null char at the end
-	val += '\x00'
-	length = len(val)
-	f.write( struct.pack('<l', length) )
-	for i in range(length):
-		f.write( struct.pack('<c', val[i]) )
+	# The len will be one longer because we're adding nullchar at end
+	f.write( struct.pack('<l', len(val)+1) )
+	f.write(val)
+	f.write('\x00')
 
 def read_char(f):
 	return struct.unpack('<c', f.read(1))[0]
 
 # Helper functions for deflate(decompress) and inflate(compress) of a given string
-def inflate( b64string ):
-    # decoded_data = base64.b64decode( b64string )
-    return zlib.decompress( b64string , -15)
+def inflate(string):
+    return zlib.decompress(string, -15)
 
 def deflate( string_val ):
-    zlibbed_str = zlib.compress( string_val )
-    compressed_string = zlibbed_str[2:-4]
-    return base64.b64encode( compressed_string )
+    return zlib.compress( string_val )[2:]

@@ -66,9 +66,37 @@ class Effect(object):
 	sound = ''
 	uids = []
 
-	def __init__(self):
-		logger.log("creating new effect")
-
+	def write(self, scn_file):
+		f = scn_file # for ease of use
+		helpers.write_long(f, self.eff_type)
+		helpers.write_long(f, self.check)
+		helpers.write_long(f, self.ai_goal)
+		helpers.write_long(f, self.amount)
+		helpers.write_long(f, self.resource)
+		helpers.write_long(f, self.diplomacy)
+		helpers.write_long(f, len(self.uids))
+		helpers.write_long(f, self.uid_location)
+		helpers.write_long(f, self.unit_constant)
+		helpers.write_long(f, self.player_source)
+		helpers.write_long(f, self.player_target)
+		helpers.write_long(f, self.technology)
+		helpers.write_long(f, self.string_table_id)
+		helpers.write_long(f, self.unknown)
+		helpers.write_long(f, self.display_time)
+		helpers.write_long(f, self.trigger_index)
+		helpers.write_long(f, self.location_y)
+		helpers.write_long(f, self.location_x)
+		helpers.write_long(f, self.area_ll_y)
+		helpers.write_long(f, self.area_ll_x)
+		helpers.write_long(f, self.area_ur_y)
+		helpers.write_long(f, self.area_ur_x)
+		helpers.write_long(f, self.unit_group)
+		helpers.write_long(f, self.unit_type)
+		helpers.write_long(f, self.panel)
+		helpers.write_str(f, "nice face bro")#self.text)
+		helpers.write_str(f,  self.sound)
+		for i in range( len(self.uids) ):
+			helpers.write_long(f, self.uids[i])
 
 	def read(self, scn_file):
 		"""Read effect from scenario file"""
