@@ -23,8 +23,8 @@ class TestScenarioReadSimple(object):
 
 	def test_trigger_cond_effect_type(self):
 		triggers = self.scenario.triggers
-		assert triggers[0]._effects[0]._eff_type.key() == 'None'
-		assert triggers[0]._conditions[0]._cond_type.key() == 'None'
+		assert triggers[0]._effects[0]._eff_type.key() == 'Blank'
+		assert triggers[0]._conditions[0]._cond_type.key() == 'Blank'
 
 # Test of loading eternal blood scenario
 class TestScenarioReadEternalBlood(object):
