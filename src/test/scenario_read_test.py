@@ -19,12 +19,12 @@ class TestScenarioReadSimple(object):
 		assert len(self.scenario.triggers) == 1
 
 	def test_trigger_attr_loop(self):
-		assert self.scenario.triggers[0].loop == False
+		assert self.scenario.triggers[0]._loop == False
 
 	def test_trigger_cond_effect_type(self):
 		triggers = self.scenario.triggers
-		assert triggers[0].effects[0].eff_type == effect.Type.Blank
-		assert triggers[0].conditions[0].cond_type == condition.Type.Blank
+		assert triggers[0]._effects[0]._eff_type.key() == 'None'
+		assert triggers[0]._conditions[0]._cond_type.key() == 'None'
 
 # Test of loading eternal blood scenario
 class TestScenarioReadEternalBlood(object):
@@ -41,17 +41,17 @@ class TestScenarioReadEternalBlood(object):
 		trigger = self.scenario.triggers[1]
 		# have to add nullchar when testing string equality because
 		# genie reads in a null char for all strings
-		assert trigger.name == 'PL1 KFC-'
+		assert trigger._name == 'PL1 KFC-'
 
-		assert len(trigger.conditions) == 1
-		assert trigger.conditions[0].cond_type == condition.Type.AccumulateAttribute
-		assert trigger.conditions[0].amount == 5
-		assert trigger.conditions[0].player == 1
+		assert len(trigger._conditions) == 1
+		assert trigger._conditions[0]._cond_type.key() == 'AccumulateAttribute'
+		assert trigger._conditions[0]._amount == 5
+		assert trigger._conditions[0]._player_source == 1
 
-		assert len(trigger.effects) == 3
-		assert trigger.effects[2].eff_type == effect.Type.CreateObject
-		assert trigger.effects[2].unit_constant == 601
-		assert trigger.effects[2].player_source == 1
+		assert len(trigger._effects) == 3
+		assert trigger._effects[2]._eff_type.key() == 'CreateObject'
+		assert trigger._effects[2]._unit_constant == 601
+		assert trigger._effects[2]._player_source == 1
 
 # Test loading of star td scenario
 class TestScenarioReadStarTD(object):
@@ -66,13 +66,13 @@ class TestScenarioReadStarTD(object):
 	def test_trigger_last_attrs(self):
 		trigger = self.scenario.triggers[468]
 
-		assert trigger.name == 'Stop towers on resource isles'
-		assert trigger.loop == True
-		assert trigger.on == True
-		assert len(trigger.conditions) == 0
-		assert len(trigger.effects) == 8
-		assert trigger.effects[2].eff_type == effect.Type.KillObject
-		assert trigger.effects[2].player_source == 3
+		assert trigger._name == 'Stop towers on resource isles'
+		assert trigger._loop == True
+		assert trigger._on == True
+		assert len(trigger._conditions) == 0
+		assert len(trigger._effects) == 8
+		assert trigger._effects[2]._eff_type.key() == 'KillObject'
+		assert trigger._effects[2]._player_source == 3
 
 if __name__ == '__main__':
 	unittest.main()
